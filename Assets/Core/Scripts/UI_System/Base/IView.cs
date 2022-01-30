@@ -18,6 +18,8 @@ namespace UI_Pipeline
         public void Hide(IView next);
 
         public void Overlap(IView overlapView);
+        
+        public IView Dependant { get; set; }
     }
 }
 

@@ -17,7 +17,8 @@ public class BaseView : MonoBehaviour, IView
     private float clickCooldown = 1f;
 
     protected bool overlappedView;
-    protected IView dependant;
+    
+    public IView Dependant { get; set; }
     
     private void Awake()
     {
@@ -40,7 +41,6 @@ public class BaseView : MonoBehaviour, IView
                 // for this view we set dependent which will be opened instantly when condition arrives
                 if (view is UI_UpgradesScreen)
                 {
-                    dependant = view;
                     view.BindOverlapped(this);
                     actionButtons[i].onClick.AddListener(() => { Overlap(view);});
                 }
@@ -65,7 +65,7 @@ public class BaseView : MonoBehaviour, IView
 
         UI_System.Instance.PanelTransition?.Invoke();
         
-        Debug.Log($"ButtonClickedOnPanel {gameObject}");
+        //Debug.Log($"ButtonClickedOnPanel {gameObject}");
         
         canvasGroup.DOFade(0f, fadeDuration).OnComplete(() =>
         {
@@ -80,10 +80,11 @@ public class BaseView : MonoBehaviour, IView
     {
         overlapView.Show();
     }
+
     public void BindOverlapped(IView dependsOn)
     {
         overlappedView = true;
-        this.dependant = dependsOn;
+        dependsOn.Dependant = this;
         actionButtons[0].onClick.AddListener(() => { Hide(null);});
     }
 }
