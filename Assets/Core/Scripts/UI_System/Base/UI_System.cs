@@ -11,6 +11,8 @@ public class UI_System : MonoBehaviour
 {
     public static UI_System Instance;
 
+    public int level = 1;
+    
     private void Awake()
     {
         Instance = this;
@@ -25,24 +27,22 @@ public class UI_System : MonoBehaviour
 
     [ReadOnly]
     public List<BaseView> ViewsToShow;
-    private void Start()
-    {
-        SetUp();
-    }
+    private void Start() => SetUp();
 
-    // Here we set up our's panel's behaviour
     public void SetUp()
     {
         PanelTransition += BlockClicks;
         
         UI_Lobby                   ui_lobby = ui_Pool.CreatePanel<UI_Lobby>();
         UI_Settings             ui_settings = ui_Pool.CreatePanel<UI_Settings>();
+        UI_UpgradesScreen ui_upgradesScreen = ui_Pool.CreatePanel<UI_UpgradesScreen>();
         UI_InGame                 ui_inGame = ui_Pool.CreatePanel<UI_InGame>();
         UI_MatchEndScreen ui_matchEndScreen = ui_Pool.CreatePanel<UI_MatchEndScreen>();
 
         ViewsToShow = new List<BaseView>();
         ViewsToShow.Add(ui_lobby);
         ViewsToShow.Add(ui_settings);
+        ViewsToShow.Add(ui_upgradesScreen);
         ViewsToShow.Add(ui_inGame);
         ViewsToShow.Add(ui_matchEndScreen);
         
@@ -52,7 +52,8 @@ public class UI_System : MonoBehaviour
         ui_lobby.Bind(new List<IView>()
         {
             ui_inGame,
-            ui_settings
+            ui_settings,
+            ui_upgradesScreen
         });
         
         ui_settings.Bind(new List<IView>()
@@ -69,7 +70,7 @@ public class UI_System : MonoBehaviour
         {
             ui_lobby
         });
-        
+
         ViewsToShow[0].Show();
     }
 

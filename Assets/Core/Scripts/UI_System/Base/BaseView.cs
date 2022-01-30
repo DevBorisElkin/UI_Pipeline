@@ -15,13 +15,19 @@ public class BaseView : MonoBehaviour, IView
 
     private DateTime lastTimeClicked;
     private float clickCooldown = 1f;
+
+    protected bool overlappedView;
+    protected IView dependant;
     
     private void Awake()
     {
+        overlappedView = false;
         if (canvasGroup == null) canvasGroup = GetComponentInChildren<CanvasGroup>();
         canvasGroup.alpha = 0;
         lastTimeClicked = DateTime.Now - TimeSpan.FromSeconds(clickCooldown);
     }
+    
+    public virtual void Init(){}
     public void Bind(List<IView> nextPanels)
     {
         for (int i = 0; i < nextPanels.Count; i++)
@@ -29,16 +35,30 @@ public class BaseView : MonoBehaviour, IView
             if (i < actionButtons.Count)
             {
                 IView view = nextPanels[i];
-                actionButtons[i].onClick.AddListener(() => { Hide(view);});
+
+                // with some views we use Modal Window mode
+                // for this view we set dependent which will be opened instantly when condition arrives
+                if (view is UI_UpgradesScreen)
+                {
+                    dependant = view;
+                    view.BindOverlapped(this);
+                    actionButtons[i].onClick.AddListener(() => { Overlap(view);});
+                }
+                else
+                {
+                    // casual views are binded simply, they have Next target to which they transition
+                    actionButtons[i].onClick.AddListener(() => { Hide(view);});
+                }
             }
         }
     }
     public void Show()
     {
+        Init();
         gameObject.SetActive(true);
         canvasGroup.DOFade(1f, fadeDuration);
     }
-    public void Hide(IView next)
+    public virtual void Hide(IView next)
     {
         if( (DateTime.Now - lastTimeClicked).TotalMilliseconds < TimeSpan.FromSeconds(clickCooldown).TotalMilliseconds) return;
         lastTimeClicked = DateTime.Now;
@@ -51,6 +71,19 @@ public class BaseView : MonoBehaviour, IView
         {
             gameObject.SetActive(false);
         });
-        next?.Show();
+        
+        if(!overlappedView)
+            next?.Show();
+    }
+
+    public void Overlap(IView overlapView)
+    {
+        overlapView.Show();
+    }
+    public void BindOverlapped(IView dependsOn)
+    {
+        overlappedView = true;
+        this.dependant = dependsOn;
+        actionButtons[0].onClick.AddListener(() => { Hide(null);});
     }
 }

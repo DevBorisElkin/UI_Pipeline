@@ -7,11 +7,17 @@ namespace UI_Pipeline
 {
     public interface IView
     {
+        public void Init();
+        
         public void Bind(List<IView> nextPanels);
+
+        public void BindOverlapped(IView dependsOn);
 
         public void Show();
 
         public void Hide(IView next);
+
+        public void Overlap(IView overlapView);
     }
 }
 
